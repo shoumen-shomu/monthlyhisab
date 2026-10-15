@@ -39,25 +39,29 @@ export default function Dashboard({ month, onNavigate }) {
       label: t.dashboard.balance,
       value: formatCurrency(savings, state.currency),
       icon: IconWallet,
-      color: 'bg-brand-50 text-brand-600',
+      color: 'bg-blue-50 text-blue-600',
+      accent: 'from-blue-500 to-blue-300',
     },
     {
       label: t.dashboard.income,
       value: formatCurrency(income, state.currency),
       icon: IconArrowUp,
       color: 'bg-emerald-50 text-emerald-600',
+      accent: 'from-blue-500 to-cyan-300',
     },
     {
       label: t.dashboard.expenses,
       value: formatCurrency(expenses, state.currency),
       icon: IconArrowDown,
       color: 'bg-rose-50 text-rose-600',
+      accent: 'from-rose-500 to-orange-300',
     },
     {
       label: t.dashboard.savings,
       value: `${formatCurrency(savings, state.currency)} (${savingsRate}%)`,
       icon: IconPiggy,
       color: savings >= 0 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600',
+      accent: savings >= 0 ? 'from-blue-500 to-rose-400' : 'from-rose-500 to-orange-300',
     },
   ]
 
@@ -68,9 +72,18 @@ export default function Dashboard({ month, onNavigate }) {
 
   return (
     <div className="space-y-6">
+      <section className="dashboard-hero relative isolate overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-blue-700 via-blue-600 to-rose-600 px-6 py-7 text-white shadow-xl shadow-blue-900/15 sm:px-8 sm:py-9">
+        <div className="pointer-events-none absolute -right-12 -top-24 -z-10 h-72 w-72 rounded-full border-[36px] border-white/10" />
+        <div className="pointer-events-none absolute bottom-[-5.5rem] right-[28%] -z-10 h-44 w-44 rounded-full bg-rose-400/25 blur-2xl" />
+        <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-100">{t.app.name}</p>
+        <h1 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">{t.dashboard.title}</h1>
+        <p className="mt-2 max-w-xl text-sm text-blue-50 sm:text-base">{t.app.tagline}</p>
+      </section>
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {cards.map((c) => (
-          <div key={c.label} className="card p-5">
+          <div key={c.label} className="card relative overflow-hidden p-5">
+            <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${c.accent}`} />
             <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl ${c.color}`}>
               <c.icon width={20} height={20} />
             </div>
@@ -96,7 +109,7 @@ export default function Dashboard({ month, onNavigate }) {
               <button onClick={() => openForm('income')} className="btn-primary">
                 <IconPlus width={16} height={16} /> {t.dashboard.addIncome}
               </button>
-              <button onClick={() => openForm('expense')} className="btn-ghost border border-slate-200">
+              <button onClick={() => openForm('expense')} className="btn-ghost border border-rose-200 text-rose-700 hover:bg-rose-50">
                 <IconPlus width={16} height={16} /> {t.dashboard.addExpense}
               </button>
             </div>

@@ -7,7 +7,15 @@
     font-family: 'Inter', system-ui, sans-serif;
   }
   body {
-    @apply bg-slate-50 text-slate-800;
+    @apply text-slate-800;
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse at 0% 0%, rgba(59, 130, 246, 0.09), transparent 34rem),
+      radial-gradient(ellipse at 100% 8%, rgba(239, 68, 68, 0.07), transparent 30rem),
+      #f6f8fc;
+  }
+  main h1:not(.text-white) {
+    @apply bg-gradient-to-r from-blue-800 via-blue-700 to-rose-600 bg-clip-text text-transparent;
   }
 }
 
@@ -16,19 +24,22 @@
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+    @apply btn bg-brand-600 text-white shadow-sm shadow-blue-200 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-md;
   }
   .btn-ghost {
     @apply btn text-slate-600 hover:bg-slate-100;
   }
   .btn-danger {
-    @apply btn bg-red-500 text-white hover:bg-red-600;
+    @apply btn bg-rose-600 text-white shadow-sm shadow-rose-200 hover:-translate-y-0.5 hover:bg-rose-700 hover:shadow-md;
   }
   .card {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+    @apply rounded-2xl border border-white/80 bg-white/95 shadow-[0_8px_30px_rgba(30,64,175,0.06)] transition-shadow duration-200;
+  }
+  .card:hover {
+    @apply shadow-[0_12px_36px_rgba(30,64,175,0.10)];
   }
   .input {
-    @apply w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+    @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
   }
   .label {
     @apply mb-1 block text-sm font-medium text-slate-700;
@@ -44,9 +55,97 @@
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #b8c8e2;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #7c96bd;
+}
+
+/* Whole-app dark palette; semantic income/expense colors remain distinct. */
+html.dark body {
+  color: #e5edf9;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(37, 99, 235, 0.18), transparent 36rem),
+    radial-gradient(ellipse at 100% 8%, rgba(225, 29, 72, 0.12), transparent 32rem),
+    #080e1b;
+}
+
+html.dark .card {
+  border-color: rgba(71, 91, 125, 0.42);
+  background: rgba(17, 27, 46, 0.92);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.18);
+}
+html.dark .card:hover {
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+}
+html.dark .bg-white,
+html.dark [class~="bg-white/70"],
+html.dark [class~="bg-white/75"],
+html.dark [class~="bg-white/80"],
+html.dark [class~="bg-white/95"] {
+  background-color: #111b2e;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #172238;
+}
+html.dark .bg-slate-200 {
+  background-color: #273650;
+}
+html.dark [class*="bg-brand-50"],
+html.dark [class*="bg-blue-50"] {
+  background-color: rgba(37, 99, 235, 0.16);
+}
+html.dark [class*="bg-rose-50"] {
+  background-color: rgba(225, 29, 72, 0.14);
+}
+html.dark [class*="bg-amber-50"] {
+  background-color: rgba(217, 119, 6, 0.15);
+}
+html.dark [class*="bg-emerald-50"] {
+  background-color: rgba(5, 150, 105, 0.15);
+}
+html.dark .text-slate-900 { color: #f8fafc; }
+html.dark .text-slate-800 { color: #edf3fc; }
+html.dark .text-slate-700 { color: #d6e0ef; }
+html.dark .text-slate-600 { color: #bdc9dc; }
+html.dark .text-slate-500 { color: #9eacc2; }
+html.dark .text-slate-400 { color: #8392aa; }
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark [class*="border-brand-100"] {
+  border-color: #2a3953;
+}
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #26344b;
+}
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: #1d2a40;
+}
+html.dark .input {
+  border-color: #33445f;
+  background-color: #101a2c;
+  color: #e5edf9;
+}
+html.dark .input::placeholder { color: #7787a0; }
+html.dark select option { background-color: #101a2c; color: #e5edf9; }
+html.dark .dark-toggle {
+  border-color: #33445f;
+  background-color: #172238;
+  color: #d6e0ef;
+}
+html.dark .dark-toggle:hover { background-color: #22314a; }
+html.dark table thead { background-color: #172238; }
+html.dark table tbody tr:hover { background-color: #1b2940; }
+html.dark .recharts-cartesian-axis-tick-value,
+html.dark .recharts-legend-item-text { fill: #aab8cc !important; color: #aab8cc !important; }
+html.dark .recharts-cartesian-grid line { stroke: #293852; }
+html.dark .recharts-tooltip-wrapper .recharts-default-tooltip {
+  border: 1px solid #33445f !important;
+  border-radius: 12px;
+  background-color: #111b2e !important;
+  color: #edf3fc !important;
 }

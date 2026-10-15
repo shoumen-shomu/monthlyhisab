@@ -1,15 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useApp } from '../store/AppContext'
 import { getMonthLabel, prevMonthKey, nextMonthKey } from '../utils/helpers'
 import Sidebar from './Sidebar'
-import { IconChevronLeft, IconChevronRight, IconMenu } from './ui/Icons'
+import { IconChevronLeft, IconChevronRight, IconMenu, IconMoon, IconSun } from './ui/Icons'
 
 export default function Layout({ children, page, month, setMonth, onNavigate }) {
   const { t, state, dispatch } = useApp()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('monthly-hisab-theme') || 'light' } catch { return 'light' }
+  })
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark')
+    try { localStorage.setItem('monthly-hisab-theme', theme) } catch { /* theme remains available for this session */ }
+  }, [theme])
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen">
       <Sidebar
         active={page}
         onNavigate={onNavigate}
@@ -18,7 +26,7 @@ export default function Layout({ children, page, month, setMonth, onNavigate }) 
       />
 
       <div className="flex flex-1 flex-col lg:pl-0">
-        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur lg:px-8">
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-white/70 bg-white/75 px-4 py-3 shadow-[0_4px_20px_rgba(30,64,175,0.04)] backdrop-blur-xl lg:px-8">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
@@ -49,6 +57,15 @@ export default function Layout({ children, page, month, setMonth, onNavigate }) 
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white/70 px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-brand-200 hover:text-brand-700 dark-toggle"
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            >
+              {theme === 'dark' ? <IconSun width={16} height={16} /> : <IconMoon width={16} height={16} />}
+              <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+            </button>
             <div className="flex rounded-lg border border-slate-200 p-0.5">
               <button
                 onClick={() => dispatch({ type: 'SET_LANGUAGE', payload: 'en' })}

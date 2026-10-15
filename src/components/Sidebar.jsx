@@ -22,17 +22,17 @@ export default function Sidebar({ active, onNavigate, mobileOpen, onClose }) {
         <div className="fixed inset-0 z-30 bg-slate-900/40 lg:hidden" onClick={onClose} />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-white border-r border-slate-200 transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-slate-800 bg-gradient-to-b from-slate-950 via-slate-900 to-blue-950 text-white transition-transform lg:static lg:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-100">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white">
+        <div className="flex items-center gap-3 border-b border-white/10 px-6 py-6">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-rose-500 text-white shadow-lg shadow-blue-950/40">
             <IconWallet width={22} height={22} />
           </div>
           <div>
-            <h1 className="text-lg font-extrabold text-slate-800">{t.app.name}</h1>
-            <p className="text-xs text-slate-500">{t.app.tagline}</p>
+            <h1 className="text-lg font-extrabold tracking-tight text-white">{t.app.name}</h1>
+            <p className="text-xs text-slate-400">{t.app.tagline}</p>
           </div>
         </div>
 
@@ -43,8 +43,8 @@ export default function Sidebar({ active, onNavigate, mobileOpen, onClose }) {
               onClick={() => { onNavigate(key); onClose() }}
               className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
                 active === key
-                  ? 'bg-brand-600 text-white shadow-sm shadow-brand-200'
-                  : 'text-slate-600 hover:bg-slate-100'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-950/30'
+                  : 'text-slate-300 hover:bg-white/10 hover:text-white'
               }`}
             >
               <Icon width={18} height={18} />
@@ -53,10 +53,10 @@ export default function Sidebar({ active, onNavigate, mobileOpen, onClose }) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
-          <div className="rounded-xl bg-slate-50 p-3 text-center">
-            <p className="text-xs text-slate-500">© {new Date().getFullYear()}</p>
-            <p className="text-xs font-medium text-slate-700">{t.app.name}</p>
+        <div className="border-t border-white/10 p-4">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
+            <p className="text-xs text-slate-400">© {new Date().getFullYear()}</p>
+            <p className="text-xs font-medium text-slate-200">{t.app.name}</p>
           </div>
         </div>
       </aside>

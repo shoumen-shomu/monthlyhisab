@@ -1,11 +1,10 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import mongoose from 'mongoose'
-import jwt from 'jsonwebtoken'
-import { timingSafeEqual } from 'node:crypto'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { AppData, connectMongo } from './db.js'
+import { createSessionToken, hasValidSession, isValidAppPassword } from './auth.js'
 
 const app = express()
 const port = Number(process.env.PORT) || 3001
@@ -22,12 +21,10 @@ app.use(cors())
 app.use(express.json({ limit: '2mb' }))
 
 app.post('/api/login', (req, res) => {
-  const submitted = Buffer.from(String(req.body?.password ?? ''))
-  const expected = Buffer.from(appPassword)
-  if (submitted.length !== expected.length || !timingSafeEqual(submitted, expected)) {
+  if (!isValidAppPassword(req.body?.password)) {
     return res.status(401).json({ error: 'Incorrect password' })
   }
-  const token = jwt.sign({ access: true }, sessionSecret, { expiresIn: '7d' })
+  const token = createSessionToken()
   res.cookie('monthly_hisab_session', token, {
     httpOnly: true,
     sameSite: 'lax',
@@ -43,20 +40,9 @@ app.post('/api/logout', (_req, res) => {
 })
 
 function requireLogin(req, res, next) {
-  try {
-    const token = req.headers.cookie?.split(';').map((part) => part.trim()).find((part) => part.startsWith('monthly_hisab_session='))?.split('=').slice(1).join('=')
-    jwt.verify(decodeURIComponent(token || ''), sessionSecret)
-    next()
-  } catch {
-    res.status(401).json({ error: 'Login required' })
-  }
+  if (hasValidSession(req)) return next()
+  res.status(401).json({ error: 'Login required' })
 }
-
-const dataSchema = new mongoose.Schema({
-  key: { type: String, unique: true, required: true },
-  state: { type: mongoose.Schema.Types.Mixed, required: true },
-}, { timestamps: true })
-const AppData = mongoose.model('AppData', dataSchema)
 
 app.get('/api/data', requireLogin, async (_req, res) => {
   try {
@@ -91,7 +77,7 @@ app.use(express.static(distPath))
 app.get('*', (_req, res) => res.sendFile(path.join(distPath, 'index.html')))
 
 try {
-  await mongoose.connect(mongoUri)
+  await connectMongo()
   app.listen(port, () => console.log(`Monthly Hisab server listening on port ${port}`))
 } catch (error) {
   console.error('MongoDB connection failed:', error.message)

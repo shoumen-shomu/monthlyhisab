@@ -281,7 +281,7 @@ export function AppProvider({ children }) {
     if (loginRequired) {
       return (
         <form
-          className="flex min-h-screen items-center justify-center bg-slate-50 p-6"
+          className="flex min-h-screen items-center justify-center p-6"
           onSubmit={async (event) => {
             event.preventDefault()
             setSyncError('')
@@ -298,8 +298,9 @@ export function AppProvider({ children }) {
             }
           }}
         >
-          <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm">
-            <h1 className="text-xl font-bold text-slate-800">Monthly Hisab</h1>
+          <div className="card w-full max-w-sm p-8">
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-rose-500 text-lg font-black text-white shadow-lg shadow-blue-200">MH</div>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900">Monthly Hisab</h1>
             <p className="mt-2 text-sm text-slate-500">Enter your app password to access your data.</p>
             <input className="input mt-5" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
             {syncError && <p className="mt-2 text-sm text-rose-600">{syncError}</p>}
@@ -309,8 +310,8 @@ export function AppProvider({ children }) {
       )
     }
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6 text-center">
-        <div className="max-w-md rounded-2xl bg-white p-8 shadow-sm">
+      <div className="flex min-h-screen items-center justify-center p-6 text-center">
+        <div className="card max-w-md p-8">
           <h1 className="text-xl font-bold text-slate-800">{syncError ? 'Database connection required' : 'Loading your data…'}</h1>
           {syncError && <p className="mt-3 text-sm text-rose-600">{syncError} Check your MongoDB connection and restart the server.</p>}
         </div>
