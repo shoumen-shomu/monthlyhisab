@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useApp } from '../store/AppContext'
 import { todayStr } from '../utils/helpers'
 
-export default function TransactionForm({ type, initial, defaultDate, onSaved }) {
+export default function TransactionForm({ type, initial, defaultDate, expenseKind, onSaved }) {
   const { t, state, dispatch } = useApp()
   const categories = state.categories.filter((c) => c.type === type)
 
@@ -24,6 +24,9 @@ export default function TransactionForm({ type, initial, defaultDate, onSaved })
       description: form.description,
       category: form.category,
       date: form.date,
+      ...(type === 'expense' && (initial?.expenseKind || expenseKind)
+        ? { expenseKind: initial?.expenseKind || expenseKind }
+        : {}),
     }
     if (initial) {
       dispatch({ type: 'UPDATE_TRANSACTION', payload: { id: initial.id, ...payload } })
