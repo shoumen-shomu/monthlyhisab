@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useReducer } from 'react'
+import { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react'
 import { translations, defaultCategories } from '../i18n/translations'
 
 const STORAGE_KEY = 'monthly-hisab-v1'
@@ -200,16 +200,69 @@ function reducer(state, action) {
 const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, undefined, loadState)
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const [ready, setReady] = useState(false)
+  const [syncError, setSyncError] = useState('')
+  const [loginRequired, setLoginRequired] = useState(false)
+  const [password, setPassword] = useState('')
 
   useEffect(() => {
+    let active = true
+    async function loadRemoteState() {
+      try {
+        const response = await fetch('/api/data')
+        if (response.status === 401) {
+          if (active) setLoginRequired(true)
+          return
+        }
+        if (!response.ok) throw new Error('Could not connect to the data server.')
+        const { state: remoteState } = await response.json()
+        let nextState = remoteState
+        if (!nextState) {
+          nextState = loadState()
+          const saveResponse = await fetch('/api/data', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state: nextState }),
+          })
+          if (!saveResponse.ok) throw new Error('Could not initialize data in MongoDB.')
+        }
+        if (active) {
+          dispatch({ type: 'IMPORT_DATA', payload: nextState })
+          setReady(true)
+        }
+      } catch (error) {
+        if (active) setSyncError(error.message || 'Database synchronization failed.')
+      }
+    }
+    loadRemoteState()
+    return () => { active = false }
+  }, [])
+
+  useEffect(() => {
+    if (!ready) return
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  }, [state])
+    const timeout = setTimeout(async () => {
+      try {
+        const response = await fetch('/api/data', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ state }),
+        })
+        if (!response.ok) throw new Error('Could not save to MongoDB.')
+        setSyncError('')
+      } catch (error) {
+        setSyncError(error.message || 'Database synchronization failed.')
+      }
+    }, 250)
+    return () => clearTimeout(timeout)
+  }, [state, ready])
 
   useEffect(() => {
+    if (!ready) return
     dispatch({ type: 'APPLY_RECURRING' })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [ready])
 
   const t = translations[state.language]
 
@@ -218,9 +271,52 @@ export function AppProvider({ children }) {
       state,
       dispatch,
       t,
+      syncError,
+      ready,
     }),
-    [state, t]
+    [state, t, syncError, ready]
   )
+
+  if (!ready) {
+    if (loginRequired) {
+      return (
+        <form
+          className="flex min-h-screen items-center justify-center bg-slate-50 p-6"
+          onSubmit={async (event) => {
+            event.preventDefault()
+            setSyncError('')
+            try {
+              const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password }),
+              })
+              if (!response.ok) throw new Error('Incorrect password.')
+              window.location.reload()
+            } catch (error) {
+              setSyncError(error.message)
+            }
+          }}
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm">
+            <h1 className="text-xl font-bold text-slate-800">Monthly Hisab</h1>
+            <p className="mt-2 text-sm text-slate-500">Enter your app password to access your data.</p>
+            <input className="input mt-5" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+            {syncError && <p className="mt-2 text-sm text-rose-600">{syncError}</p>}
+            <button className="btn-primary mt-4 w-full justify-center" type="submit">Continue</button>
+          </div>
+        </form>
+      )
+    }
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6 text-center">
+        <div className="max-w-md rounded-2xl bg-white p-8 shadow-sm">
+          <h1 className="text-xl font-bold text-slate-800">{syncError ? 'Database connection required' : 'Loading your data…'}</h1>
+          {syncError && <p className="mt-3 text-sm text-rose-600">{syncError} Check your MongoDB connection and restart the server.</p>}
+        </div>
+      </div>
+    )
+  }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
